@@ -2,6 +2,9 @@
 name = "workfetch"
 version = "0.1.0"
 edition = "2024"
+description = "A small terminal application for visualizing everyday information about your working hours."
+repository = "https://github.com/KaiWesterschwiensterdt/workfetch"
+authors = ["Kai KaiWesterschwiensterdt"]
 
 [dependencies]
 chrono = { version = "0.4.42", features = ["serde"] }
