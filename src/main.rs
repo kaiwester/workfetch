@@ -13,16 +13,26 @@ struct WorkSession {
     start_time: DateTime<Local>,
 }
 
+// User configurable working / break durations (in minutes)
+#[derive(Serialize, Deserialize, Debug)]
+struct UserConfig {
+    work_minutes: u32,
+    break_minutes: u32,
+}
+
 fn main() {
-    // Determine the actual start time (Load from file OR get boot time)
+    // Load or create user configuration for work/break durations
+    let user_cfg: UserConfig = load_or_create_user_config();
+
+    // Get or create start time from persistent storage
     let real_start_time: DateTime<Local> = get_or_create_start_time();
 
     // Round to the nearest 15 minutes
     let rounded_start_time: DateTime<Local> = round_to_nearest_15(real_start_time);
 
     // Calculate target time
-    let work_duration: TimeDelta = Duration::minutes((7.5 * 60.0) as i64);
-    let break_duration: TimeDelta = Duration::minutes(30);
+    let work_duration: TimeDelta = Duration::minutes(user_cfg.work_minutes as i64);
+    let break_duration: TimeDelta = Duration::minutes(user_cfg.break_minutes as i64);
     let total_required: TimeDelta = work_duration + break_duration;
 
     let end_time: DateTime<Local> = rounded_start_time + total_required;
@@ -58,8 +68,16 @@ fn main() {
         "-----------------------------------".to_string(),
         "dimmed",
     ));
-    entries.push(("Target Work Time", "7 Std 30 Min".to_string(), "green"));
-    entries.push(("Break Time", "30 Min".to_string(), "green"));
+    entries.push((
+        "Target Work Time",
+        create_duration_string(user_cfg.work_minutes as i64),
+        "green",
+    ));
+    entries.push((
+        "Break Time",
+        create_duration_string(user_cfg.break_minutes as i64),
+        "green",
+    ));
     entries.push((
         "End of Day",
         end_time.format("%H:%M").to_string(),
@@ -72,11 +90,9 @@ fn main() {
     ));
 
     if remaining.num_minutes() > 0 {
-        let hours: i64 = remaining.num_minutes() / 60;
-        let minutes: i64 = remaining.num_minutes() % 60;
         entries.push((
             "Remaining",
-            format!("{} hrs {} min", hours, minutes),
+            create_duration_string(remaining.num_minutes()),
             "yellow",
         ));
     } else {
@@ -89,6 +105,37 @@ fn main() {
     }
 
     print_logo_and_entries(&entries);
+}
+
+fn create_duration_string(total_minutes: i64) -> String {
+    let hours: i64 = total_minutes / 60;
+    let minutes: i64 = total_minutes % 60;
+    if hours > 0 {
+        format!("{} Std {} Min", hours, minutes)
+    } else {
+        format!("{} Min", minutes)
+    }
+}
+
+/// Loads existing user config or creates default one
+fn load_or_create_user_config() -> UserConfig {
+    let path: PathBuf = get_user_config_path();
+    // Try read existing
+    if let Ok(contents) = fs::read_to_string(&path) {
+        if let Ok(cfg) = toml::from_str::<UserConfig>(&contents) {
+            return cfg;
+        }
+    }
+
+    // Defaults
+    let default_cfg = UserConfig {
+        work_minutes: 480, // 8 hours
+        break_minutes: 45, // 45 minutes
+    };
+    if let Ok(serialized) = toml::to_string(&default_cfg) {
+        let _ = fs::write(&path, serialized);
+    }
+    default_cfg
 }
 
 /// Core Logic: Handles the persistence
@@ -133,6 +180,18 @@ fn get_config_path() -> PathBuf {
     }
     // Fallback to local directory if AppData fails
     PathBuf::from("work_session.json")
+}
+
+/// Path to user configuration file (TOML)
+fn get_user_config_path() -> PathBuf {
+    if let Some(proj_dirs) = ProjectDirs::from("com", "internal", "workfetch") {
+        let config_dir = proj_dirs.config_dir();
+        if !config_dir.exists() {
+            let _ = fs::create_dir_all(config_dir);
+        }
+        return config_dir.join("config.toml");
+    }
+    PathBuf::from("config.toml")
 }
 
 fn read_session(path: &PathBuf) -> Result<WorkSession, io::Error> {
