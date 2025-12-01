@@ -83,7 +83,7 @@ Open an issue or PR with concise description. Keep changes focused and small.
 
 ## License
 
-Specify a license if desired (e.g. MIT). Currently unspecified.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ---
 
