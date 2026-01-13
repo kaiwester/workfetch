@@ -14,7 +14,7 @@ A small terminal application for visualizing your working day: start time (persi
 
 ```powershell
 # Clone
-git clone https://github.com/KaiWesterschwiensterdt/workfetch.git
+git clone https://github.com/kaiwester/workfetch.git
 cd workfetch
 
 # Build
