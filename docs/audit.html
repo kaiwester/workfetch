@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>workfetch — Code Audit</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/moon.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css">
+<style>
+  .reveal .slides section { font-size: 0.85em; }
+  .tag-now  { background:#e74c3c; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.7em; vertical-align:middle; }
+  .tag-later{ background:#2980b9; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.7em; vertical-align:middle; }
+  .tag-ok   { background:#27ae60; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.7em; vertical-align:middle; }
+  .tag-warn { background:#f39c12; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.7em; vertical-align:middle; }
+  table { width:100%; font-size:0.8em; }
+  td, th { padding: 4px 8px; }
+  .hleft { text-align:left !important; }
+  .small { font-size:0.75em; color:#aaa; }
+  .ascii { font-family:monospace; font-size:0.65em; line-height:1.3; color:#1abc9c; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- TITLE -->
+<section>
+  <h1 style="color:#1abc9c">workfetch</h1>
+  <h3>Code Audit &middot; April 2026</h3>
+  <p class="small">A terminal workday timer written in Rust</p>
+  <pre class="ascii">
+##################
+###+=======+######
+###-          ####
+###-   *##=    ###
+###-   *##:    ###
+###-   +=-     ###
+###-          ####
+###-   :.     ####
+###-   *##=    ###
+###-   *##=    ###
+###-   ++=     ###
+###-          ####
+###========+######
+##################</pre>
+</section>
+
+<!-- CURRENT STATE -->
+<section>
+  <h2>Current State</h2>
+  <ul>
+    <li>Single Rust source file &mdash; <strong>~278 LOC</strong></li>
+    <li>Run-once CLI: prints and exits, no interaction</li>
+    <li>Persists two files in platform config dir:<br>
+      <code>last_session.json</code> &amp; <code>config.toml</code></li>
+    <li>Uses <strong>system boot time</strong> as work-start proxy</li>
+    <li>Outputs colorized terminal table + ASCII logo</li>
+    <li><span class="tag-warn">WARN</span> No CLI arg parsing, no tests, Windows-only README examples</li>
+    <li><span class="tag-ok">OK</span> No unsafe code, no network, no hardcoded secrets</li>
+  </ul>
+</section>
+
+<!-- PROJECT SNAPSHOT -->
+<section>
+  <h2>Project Numbers</h2>
+  <table>
+    <thead><tr><th class="hleft">Metric</th><th class="hleft">Value</th></tr></thead>
+    <tbody>
+      <tr><td>Lines of Rust</td><td>~278</td></tr>
+      <tr><td>Dependencies</td><td>7 crates</td></tr>
+      <tr><td>Unsafe blocks</td><td>0</td></tr>
+      <tr><td>Panicking unwraps</td><td>4 &nbsp;(2 avoidable)</td></tr>
+      <tr><td>Silenced errors (<code>let _ =</code>)</td><td>4</td></tr>
+      <tr><td>Unit tests</td><td>0</td></tr>
+      <tr><td>Deprecated API calls</td><td>1</td></tr>
+      <tr><td>CI pipelines</td><td>0</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- DEPENDENCIES -->
+<section>
+  <h2>Dependency Inventory</h2>
+  <table>
+    <thead><tr><th class="hleft">Crate</th><th class="hleft">Version</th><th class="hleft">Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>chrono</td><td>0.4.42</td><td>Date/time arithmetic &amp; formatting</td></tr>
+      <tr><td>colored</td><td>3.0.0</td><td>Terminal ANSI colors</td></tr>
+      <tr><td>directories</td><td>6.0.0</td><td>Platform config dir paths</td></tr>
+      <tr><td>serde</td><td>1.0.228</td><td>Serialization framework</td></tr>
+      <tr><td>serde_json</td><td>1.0.145</td><td>Session file persistence (JSON)</td></tr>
+      <tr><td>sysinfo</td><td>0.37.2</td><td>System boot time</td></tr>
+      <tr><td>toml</td><td>0.8</td><td>User config file (TOML)</td></tr>
+    </tbody>
+  </table>
+  <p class="small">All dependencies are well-maintained; no known CVEs at time of audit.</p>
+</section>
+
+<!-- CODE QUALITY 1 -->
+<section>
+  <h2>Code Quality &mdash; Issues</h2>
+  <ul>
+    <li><span class="tag-warn">WARN</span> <code>DateTime::from_timestamp</code> is <strong>deprecated</strong> in chrono &ge; 0.4.27 &mdash; use <code>Utc.timestamp_opt(...).single()</code></li>
+    <li><span class="tag-warn">WARN</span> Write failures silently discarded via <code>let _ = ...</code> &mdash; user gets no feedback when config or session can't be saved</li>
+    <li><span class="tag-warn">WARN</span> <code>System::boot_time()</code> called twice in one expression (redundant syscall)</li>
+    <li><span class="tag-warn">WARN</span> <code>remaining.num_minutes() &gt; 0</code> ignores the sub-minute remainder &mdash; last 59 seconds show "0 Min" instead of "DONE"</li>
+    <li><span class="tag-ok">OK</span> Consistent typed structs for all (de)serialization</li>
+    <li><span class="tag-ok">OK</span> Function separation is clean and readable</li>
+  </ul>
+</section>
+
+<!-- CODE QUALITY 2 -->
+<section>
+  <h2>Code Quality &mdash; Minor</h2>
+  <ul>
+    <li>Color name passed as <code>&amp;str</code> at runtime &mdash; a typo silently produces no color; an enum would catch this at compile time</li>
+    <li><code>BootTimeExt</code> trait is over-engineered &mdash; it's an associated function with no polymorphism; a free function is idiomatic</li>
+    <li>Function signatures use <code>&amp;PathBuf</code> where idiomatic Rust prefers <code>&amp;Path</code></li>
+    <li>Output labels <code>"Std"</code> / <code>"Min"</code> are German abbreviations &mdash; undocumented for non-German contributors</li>
+    <li>The <code>"---"</code> separator and <code>""</code> empty-key rows are display-control sentinels mixed into data &mdash; fragile encoding</li>
+  </ul>
+</section>
+
+<!-- SECURITY -->
+<section>
+  <h2>Security Assessment &nbsp;<span class="tag-ok">PASS</span></h2>
+  <ul>
+    <li><span class="tag-ok">OK</span> No network access</li>
+    <li><span class="tag-ok">OK</span> No unsafe blocks</li>
+    <li><span class="tag-ok">OK</span> No hardcoded credentials or secrets</li>
+    <li><span class="tag-ok">OK</span> No path traversal risk &mdash; paths built from <code>ProjectDirs</code></li>
+    <li><span class="tag-ok">OK</span> Config deserialized into typed structs &mdash; no arbitrary code execution</li>
+    <li><span class="tag-warn">NOTE</span> <code>boot_time_sec as i64</code> cast could panic on a nonsensical OS timestamp &mdash; negligible real-world risk</li>
+    <li><span class="tag-warn">NOTE</span> Beckhoff&trade; logo in binary output &mdash; trademark consideration for public distribution</li>
+  </ul>
+</section>
+
+<!-- TODO NOW -->
+<section>
+  <h2>Top 3 &mdash; <span class="tag-now">TODO NOW</span></h2>
+  <ol>
+    <li>
+      <strong>Fix deprecated chrono API</strong><br>
+      <span class="small">Replace <code>DateTime::from_timestamp(sec, 0)</code> with <code>Utc.timestamp_opt(sec, 0).single()</code>. Currently emits deprecation warnings; will be a compile error in future editions. ~30 min.</span>
+    </li>
+    <li>
+      <strong>Surface write errors instead of silencing them</strong><br>
+      <span class="small">Replace the four <code>let _ = ...</code> file-write suppressions with <code>eprintln!</code> warnings. Silent failures mean the user never knows their session isn't being saved. ~15 min.</span>
+    </li>
+    <li>
+      <strong>Add CLI argument parsing (<code>--work</code> / <code>--break</code>)</strong><br>
+      <span class="small">Users currently must edit a TOML file to change durations. A minimal <code>std::env::args</code> parser (or adding <code>clap</code>) covers the most common use case and is already #1 on the README roadmap. ~2h.</span>
+    </li>
+  </ol>
+</section>
+
+<!-- TODO LATER -->
+<section>
+  <h2>Top 3 &mdash; <span class="tag-later">TODO LATER</span></h2>
+  <ol>
+    <li>
+      <strong>Add unit tests</strong><br>
+      <span class="small">Zero test coverage. <code>round_to_nearest_15</code> and <code>create_duration_string</code> are pure functions &mdash; trivial to test and high value for catching regressions. Add a <code>#[cfg(test)]</code> module. ~2h.</span>
+    </li>
+    <li>
+      <strong>Refactor internals: <code>BootTimeExt</code> &rarr; free function, <code>&amp;PathBuf</code> &rarr; <code>&amp;Path</code></strong><br>
+      <span class="small">Low-risk cleanup that aligns with Rust API guidelines. No behavior change. ~1h.</span>
+    </li>
+    <li>
+      <strong>Manual work-start override</strong><br>
+      <span class="small">Boot time &ne; work start in many workflows (machine boots at 7am, work starts at 9am). A <code>--override-start HH:MM</code> flag makes the core feature reliable for all users, not just immediate-boot users. ~3h.</span>
+    </li>
+  </ol>
+</section>
+
+<!-- VISION -->
+<section>
+  <h2>Project Vision</h2>
+  <blockquote style="font-style:italic; border-left:4px solid #1abc9c; padding-left:1em; margin:0.5em 0;">
+    &ldquo;A <strong>zero-friction workday companion</strong> &mdash; one command in your terminal gives you an instant, glanceable picture of where you are in your day.&rdquo;
+  </blockquote>
+  <ul>
+    <li>Think <strong>neofetch for your workday</strong>: runs in &lt;100ms, no daemon, no app to open</li>
+    <li>Grows via <strong>composable modules</strong>: today (timer) &rarr; later (meetings, PR queue, last commit)</li>
+    <li>Stays <strong>offline-first</strong> and <strong>config-file driven</strong> &mdash; no account, no cloud sync</li>
+    <li>Eventual goal: drop in <code>.bashrc</code> / <code>.zshrc</code> to greet you on every new shell</li>
+  </ul>
+</section>
+
+<!-- ROADMAP SUMMARY -->
+<section>
+  <h2>Recommended Roadmap</h2>
+  <table>
+    <thead><tr><th class="hleft">Phase</th><th class="hleft">Item</th><th class="hleft">Effort</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag-now">NOW</span></td><td>Fix deprecated chrono API</td><td>~30 min</td></tr>
+      <tr><td><span class="tag-now">NOW</span></td><td>Surface write errors (<code>eprintln!</code>)</td><td>~15 min</td></tr>
+      <tr><td><span class="tag-now">NOW</span></td><td>CLI arg parsing (<code>--work</code> / <code>--break</code>)</td><td>~2h</td></tr>
+      <tr><td><span class="tag-later">LATER</span></td><td>Unit tests</td><td>~2h</td></tr>
+      <tr><td><span class="tag-later">LATER</span></td><td>Internals cleanup (trait, PathBuf)</td><td>~1h</td></tr>
+      <tr><td><span class="tag-later">LATER</span></td><td>Manual work-start override</td><td>~3h</td></tr>
+      <tr><td><span class="tag-later">LATER</span></td><td>Export daily summary (CSV / JSON)</td><td>~4h</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- CLOSING -->
+<section>
+  <h1 style="color:#1abc9c">Summary</h1>
+  <p>workfetch is a <strong>clean, functional MVP</strong> with zero security issues.</p>
+  <p>The core is solid &mdash; one deprecated API call and better error visibility are the only urgent fixes.</p>
+  <p>The biggest growth opportunity is making the <strong>work-start time reliable</strong> for all boot/work patterns.</p>
+  <p class="small">Navigate: arrow keys &nbsp;&bull;&nbsp; Fullscreen: F &nbsp;&bull;&nbsp; Overview: Esc</p>
+</section>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    transition: 'slide',
+    plugins: [ RevealHighlight, RevealNotes ]
+  });
+</script>
+</body>
+</html>

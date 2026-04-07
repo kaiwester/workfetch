@@ -1,66 +1,101 @@
 # workfetch
 
-A small terminal application for visualizing your working day: start time (persisted across reboot), rounded start, target work & break durations, end-of-day time, and remaining minutes. Includes a simple ASCII logo for a compact dashboard feel.
+A small terminal application for visualizing your working day: start time (persisted across reboots), rounded start, target work & break durations, end-of-day time, and remaining time. Includes a simple ASCII logo for a compact dashboard feel.
 
 ## Features
 
 - Auto-detects system boot time and persists session start (`last_session.json`).
-- Rounds start time to nearest 15 minutes (configurable logic point for future).
-- User-configurable work & break durations via `config.toml`.
-- Colorized, aligned output for quick terminal glance.
-- Survives system reboot: will restore previous start time if same day.
+- Rounds start time to nearest 15 minutes.
+- User-configurable work & break durations via `config.toml` or CLI flags.
+- Override today's start time manually with `--override-start`.
+- Colorized, aligned output for a quick terminal glance.
+- Survives system reboot: restores the previous start time if still the same day.
+- Cross-platform config paths (Linux, macOS, Windows) via `directories`.
 
 ## Installation
 
-```powershell
+```sh
 # Clone
 git clone https://github.com/kaiwester/workfetch.git
 cd workfetch
 
-# Build
+# Build release binary
 cargo build --release
 
 # Run (dev)
 cargo run
 
 # Run (release binary)
-./target/release/workfetch
+./target/release/workfetch          # Linux / macOS
+.\target\release\workfetch.exe      # Windows
 ```
+
+## Usage
+
+```
+workfetch [OPTIONS]
+
+Options:
+      --work <MINUTES>         Override work duration in minutes
+      --break <MINUTES>        Override break duration in minutes
+      --override-start <HH:MM> Override today's work start time
+  -h, --help                   Print help
+```
+
+### Examples
+
+```sh
+# Use config file defaults
+workfetch
+
+# 7-hour workday with 30-minute break, just for this run
+workfetch --work 420 --break 30
+
+# Record that you actually started at 09:00 today
+workfetch --override-start 09:00
+```
+
+`--work` and `--break` apply only for the current run and do not modify `config.toml`.  
+`--override-start` writes the given time to `last_session.json` for today and exits.
 
 ## Configuration
 
-A TOML file is created on first run:
+A TOML file is created on first run at the platform config directory:
 
-**Path (Windows example):** `C:\Users\<YOU>\AppData\Roaming\com\internal\workfetch\config.toml`
+| Platform | Path |
+|----------|------|
+| Linux    | `~/.config/workfetch/config.toml` |
+| macOS    | `~/Library/Application Support/workfetch/config.toml` |
+| Windows  | `%APPDATA%\workfetch\config.toml` |
 
-Fallback (if `ProjectDirs` fails): `./config.toml` in the working directory.
+Fallback (if directory resolution fails): `./config.toml` in the working directory.
 
 ```toml
 # config.toml
-work_minutes = 480    # Total planned work time in minutes (8h default)
-break_minutes = 45    # Planned break time in minutes (45m default)
+work_minutes = 480    # Total planned work time in minutes (8 h default)
+break_minutes = 45    # Planned break time in minutes (45 min default)
 ```
 
-Change values and re-run the tool; no rebuild needed unless you change code.
+Change values and re-run — no rebuild required.
 
 ## Persistence Model
 
-- `last_session.json` stores the starting point for the day.
-- If the file's date matches today, that time is reused.
-- If system reboot occurred midday, start time is preserved ("Restored Start").
-- If date changed (new day), boot time becomes new start and file is overwritten.
+- `last_session.json` stores the start timestamp for the current day.
+- If the file's date matches today, that time is reused (survives reboots).
+- If the date has changed (new day), boot time becomes the new start and the file is overwritten.
+- Use `--override-start HH:MM` to manually correct the start time for today.
 
 ## Output Example
 
 ```
 ##################    System Start       : 07:41:12
 ###+=======+######    Rounded Start      : 07:45
-###-          ####    Target Work Time   : 8 Std 0 Min
-###-   *##=    ###    Break Time         : 45 Min
-###-   *##:    ###    End of Day         : 16:30
-###-   +=-     ###    -----------------------------------
-###-          ####    Remaining          : 5 Std 12 Min
-###-   :.     ####
+###-          ####    -----------------------------------
+###-   *##=    ###    Target Work Time   : 8 Std 0 Min
+###-   *##:    ###    Break Time         : 45 Min
+###-   +=-     ###    End of Day         : 16:30
+###-          ####    -----------------------------------
+###-   :.     ####    Remaining          : 5 Std 12 Min
 ###-   *##=    ###
 ###-   *##=    ###
 ###-   ++=     ###
@@ -69,22 +104,19 @@ Change values and re-run the tool; no rebuild needed unless you change code.
 ##################
 ```
 
+> **Note on units:** Duration strings use German abbreviations — `Std` (Stunden = hours) and `Min` (Minuten = minutes).
+
 ## Roadmap / Ideas
 
-- CLI flags to override config for a single run (`--work 420 --break 30`).
-- Validation & friendly warnings for extreme values.
+- Validation & friendly warnings for extreme config values.
 - Optional lunch break logic / multi-break schedule.
 - Export daily summary (CSV / JSON).
-- Cross-platform packaging.
+- Cross-platform packaging / installer.
 
 ## Contributing
 
-Open an issue or PR with concise description. Keep changes focused and small.
+Open an issue or PR with a concise description. Keep changes focused and small.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
----
-
-Feel free to suggest improvements or request features.
+This project is licensed under the MIT License — see [LICENSE.md](LICENSE.md) for details.
