@@ -1,5 +1,9 @@
 # workfetch
 
+[![CI](https://github.com/kaiwester/workfetch/actions/workflows/ci.yml/badge.svg)](https://github.com/kaiwester/workfetch/actions/workflows/ci.yml)
+[![Release](https://github.com/kaiwester/workfetch/actions/workflows/release.yml/badge.svg)](https://github.com/kaiwester/workfetch/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
+
 A small terminal application for visualizing your working day: start time (persisted across reboots), rounded start, target work & break durations, end-of-day time, and remaining time. Includes a simple ASCII logo for a compact dashboard feel.
 
 ## Features
@@ -14,20 +18,60 @@ A small terminal application for visualizing your working day: start time (persi
 
 ## Installation
 
+### Quick Install (recommended)
+
+**Windows** (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/kaiwester/workfetch/main/install.ps1 | iex
+```
+
+**Linux / macOS**:
+
 ```sh
-# Clone
+curl -fsSL https://raw.githubusercontent.com/kaiwester/workfetch/main/install.sh | sh
+```
+
+Restart your terminal, then run `workfetch`.
+
+### Pre-built Binaries
+
+Download the latest archive for your platform from the
+[Releases](https://github.com/kaiwester/workfetch/releases/latest) page, extract it,
+and place the binary somewhere on your `PATH`.
+
+### cargo install
+
+If you have the Rust toolchain installed:
+
+```sh
+cargo install workfetch
+```
+
+### Build from Source
+
+```sh
 git clone https://github.com/kaiwester/workfetch.git
 cd workfetch
-
-# Build release binary
 cargo build --release
 
-# Run (dev)
-cargo run
-
-# Run (release binary)
+# Binary is at:
 ./target/release/workfetch          # Linux / macOS
 .\target\release\workfetch.exe      # Windows
+```
+
+### Uninstall
+
+**Windows** (PowerShell):
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/kaiwester/workfetch/main/install.ps1))) -Uninstall
+```
+
+**Linux / macOS**:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/kaiwester/workfetch/main/install.sh | sh -s -- --uninstall
 ```
 
 ## Usage
@@ -111,7 +155,7 @@ Change values and re-run — no rebuild required.
 - Validation & friendly warnings for extreme config values.
 - Optional lunch break logic / multi-break schedule.
 - Export daily summary (CSV / JSON).
-- Cross-platform packaging / installer.
+- Scoop / winget / Homebrew package manager support.
 
 ## Contributing
 
