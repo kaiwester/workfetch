@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag name to release (e.g. v0.2.1)"
+        required: true
 
 permissions:
   contents: write
@@ -54,7 +59,8 @@ jobs:
         if: matrix.archive == 'tar.gz'
         shell: bash
         run: |
-          staging="workfetch-${{ github.ref_name }}-${{ matrix.target }}"
+          ref="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}"
+          staging="workfetch-${ref}-${{ matrix.target }}"
           mkdir "$staging"
           cp "target/${{ matrix.target }}/release/${{ steps.bin.outputs.name }}" "$staging/"
           cp README.md LICENSE.md "$staging/"
@@ -65,8 +71,9 @@ jobs:
         if: matrix.archive == 'zip'
         shell: pwsh
         run: |
-          $staging = "workfetch-${{ github.ref_name }}-${{ matrix.target }}"
-          New-Item -ItemType Directory -Path $staging
+          $ref = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ github.event.inputs.tag }}" } else { "${{ github.ref_name }}" }
+          $staging = "workfetch-$ref-${{ matrix.target }}"
+          New-Item -ItemType Directory -Path $staging -Force | Out-Null
           Copy-Item "target/${{ matrix.target }}/release/${{ steps.bin.outputs.name }}" $staging/
           Copy-Item README.md, LICENSE.md $staging/
           Compress-Archive -Path "$staging/*" -DestinationPath "$staging.zip"
@@ -84,6 +91,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
           files: |
             ${{ env.ASSET }}
             ${{ env.ASSET }}.sha256
