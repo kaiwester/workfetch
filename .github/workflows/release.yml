@@ -70,7 +70,7 @@ jobs:
           Copy-Item "target/${{ matrix.target }}/release/${{ steps.bin.outputs.name }}" $staging/
           Copy-Item README.md, LICENSE.md $staging/
           Compress-Archive -Path "$staging/*" -DestinationPath "$staging.zip"
-          echo "ASSET=$staging.zip" >> $env:GITHUB_ENV
+          Add-Content $env:GITHUB_ENV "ASSET=$staging.zip"
 
       - name: Generate SHA256 checksum
         shell: bash
