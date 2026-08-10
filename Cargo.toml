@@ -1,6 +1,6 @@
 [package]
 name = "workfetch"
-version = "0.2.0"
+version = "0.2.3"
 edition = "2024"
 description = "A small terminal application for visualizing everyday information about your working hours."
 repository = "https://github.com/KaiWesterschwiensterdt/workfetch"
