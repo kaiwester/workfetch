@@ -1,7 +1,7 @@
 # workfetch
 
-[![CI](https://github.com/kaiwester/workfetch/actions/workflows/ci.yml/badge.svg)](https://github.com/kaiwester/workfetch/actions/workflows/ci.yml)
-[![Release](https://github.com/kaiwester/workfetch/actions/workflows/release.yml/badge.svg)](https://github.com/kaiwester/workfetch/releases/latest)
+[![CI](https://github.com/KaiWesterschwiensterdt/workfetch/actions/workflows/ci.yml/badge.svg)](https://github.com/KaiWesterschwiensterdt/workfetch/actions/workflows/ci.yml)
+[![Release](https://github.com/KaiWesterschwiensterdt/workfetch/actions/workflows/release.yml/badge.svg)](https://github.com/KaiWesterschwiensterdt/workfetch/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 
 A small terminal application for visualizing your working day: start time (persisted across reboots), rounded start, target work & break durations, end-of-day time, and remaining time. Includes a simple ASCII logo for a compact dashboard feel.
@@ -23,13 +23,13 @@ A small terminal application for visualizing your working day: start time (persi
 **Windows** (PowerShell):
 
 ```powershell
-irm https://raw.githubusercontent.com/kaiwester/workfetch/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1 | iex
 ```
 
 **Linux / macOS**:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/kaiwester/workfetch/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.sh | sh
 ```
 
 Restart your terminal, then run `workfetch`.
@@ -37,21 +37,24 @@ Restart your terminal, then run `workfetch`.
 ### Pre-built Binaries
 
 Download the latest archive for your platform from the
-[Releases](https://github.com/kaiwester/workfetch/releases/latest) page, extract it,
+[Releases](https://github.com/KaiWesterschwiensterdt/workfetch/releases/latest) page, extract it,
 and place the binary somewhere on your `PATH`.
 
 ### cargo install
 
-If you have the Rust toolchain installed:
+If you have the Rust toolchain installed, install straight from the repository:
 
 ```sh
-cargo install workfetch
+cargo install --git https://github.com/KaiWesterschwiensterdt/workfetch
 ```
+
+This builds and drops `workfetch` into `~/.cargo/bin` (already on your PATH),
+so you can run `workfetch` immediately in a new terminal.
 
 ### Build from Source
 
 ```sh
-git clone https://github.com/kaiwester/workfetch.git
+git clone https://github.com/KaiWesterschwiensterdt/workfetch.git
 cd workfetch
 cargo build --release
 
@@ -65,13 +68,13 @@ cargo build --release
 **Windows** (PowerShell):
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/kaiwester/workfetch/main/install.ps1))) -Uninstall
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1))) -Uninstall
 ```
 
 **Linux / macOS**:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/kaiwester/workfetch/main/install.sh | sh -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.sh | sh -s -- --uninstall
 ```
 
 ## Usage
