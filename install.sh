@@ -2,13 +2,13 @@
 # Install or uninstall workfetch on Linux / macOS.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/kaiwester/workfetch/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.sh | sh
 #   curl -fsSL ... | sh -s -- --version v0.2.0
 #   curl -fsSL ... | sh -s -- --uninstall
 
 set -eu
 
-REPO="kaiwester/workfetch"
+REPO="KaiWesterschwiensterdt/workfetch"
 BIN_NAME="workfetch"
 
 # --- Defaults ---

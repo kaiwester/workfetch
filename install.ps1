@@ -14,13 +14,13 @@
 
 .EXAMPLE
     # Install latest
-    irm https://raw.githubusercontent.com/kaiwester/workfetch/main/install.ps1 | iex
+    irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1 | iex
 
     # Install specific version
-    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/kaiwester/workfetch/main/install.ps1))) -Version v0.2.0
+    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1))) -Version v0.2.0
 
     # Uninstall
-    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/kaiwester/workfetch/main/install.ps1))) -Uninstall
+    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1))) -Uninstall
 #>
 param(
     [string]$Version,
@@ -30,7 +30,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$Repo = "kaiwester/workfetch"
+$Repo = "KaiWesterschwiensterdt/workfetch"
 $BinName = "workfetch.exe"
 $InstallDir = Join-Path $env:LOCALAPPDATA "workfetch"
 
