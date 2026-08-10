@@ -6,7 +6,7 @@
 
 A small terminal application for visualizing your working day: start time (persisted across reboots), rounded start, target work & break durations, end-of-day time, and remaining time. Includes a simple ASCII logo for a compact dashboard feel.
 
-📖 **Full guide & quick start:** <https://kaiwesterschwiensterdt.github.io/workfetch/>
+📖 **Full guide & quick start:** <https://kaiwester.github.io/workfetch/>
 
 ## Features
 
@@ -36,7 +36,7 @@ Restart your terminal, then run `workfetch`.
 
 For pre-built binaries, `cargo install`, building from source, usage, configuration,
 the persistence model, and uninstall instructions, see the
-[**full guide**](https://kaiwesterschwiensterdt.github.io/workfetch/).
+[**full guide**](https://kaiwester.github.io/workfetch/).
 
 ## Roadmap / Ideas
 
