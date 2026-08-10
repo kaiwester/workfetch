@@ -1,5 +1,5 @@
-use chrono::{DateTime, Duration, Local, NaiveTime, TimeDelta, Timelike, Utc};
 use chrono::TimeZone as _;
+use chrono::{DateTime, Duration, Local, NaiveTime, TimeDelta, Timelike, Utc};
 use clap::Parser;
 use colored::*;
 use directories::ProjectDirs;
@@ -65,7 +65,9 @@ fn main() {
                 if start_dt > Local::now() + Duration::minutes(1) {
                     eprintln!("workfetch: warning: override start time is in the future");
                 }
-                let session = WorkSession { start_time: start_dt };
+                let session = WorkSession {
+                    start_time: start_dt,
+                };
                 let file_path = get_config_path();
                 if let Err(e) = save_session(&file_path, &session) {
                     eprintln!("workfetch: error: could not save session: {e}");
@@ -75,7 +77,10 @@ fn main() {
                 return;
             }
             Err(_) => {
-                eprintln!("workfetch: error: invalid time format '{}', expected HH:MM", time_str);
+                eprintln!(
+                    "workfetch: error: invalid time format '{}', expected HH:MM",
+                    time_str
+                );
                 std::process::exit(1);
             }
         }
@@ -109,51 +114,51 @@ fn main() {
 
     // Visual indicator if we are using a restored time vs fresh boot
     let boot_dt = boot_time_as_datetime();
-    let source_label: &str = if real_start_time.date_naive() == boot_dt.date_naive()
-        && real_start_time < boot_dt
-    {
-        "Restored Start" // Using cached time (reboot detected)
-    } else {
-        "System Start" // Using fresh boot time
-    };
+    let source_label: &str =
+        if real_start_time.date_naive() == boot_dt.date_naive() && real_start_time < boot_dt {
+            "Restored Start" // Using cached time (reboot detected)
+        } else {
+            "System Start" // Using fresh boot time
+        };
 
     // Collect entries for side-by-side output
-    let mut entries: Vec<(&str, String, &str)> = Vec::new();
-    entries.push((
-        source_label,
-        real_start_time.format("%H:%M:%S").to_string(),
-        "blue",
-    ));
-    entries.push((
-        "Rounded Start",
-        rounded_start_time.format("%H:%M").to_string(),
-        "cyan",
-    ));
-    entries.push((
-        "---",
-        "-----------------------------------".to_string(),
-        "dimmed",
-    ));
-    entries.push((
-        "Target Work Time",
-        create_duration_string(user_cfg.work_minutes as i64),
-        "green",
-    ));
-    entries.push((
-        "Break Time",
-        create_duration_string(user_cfg.break_minutes as i64),
-        "green",
-    ));
-    entries.push((
-        "End of Day",
-        end_time.format("%H:%M").to_string(),
-        "magenta",
-    ));
-    entries.push((
-        "---",
-        "-----------------------------------".to_string(),
-        "dimmed",
-    ));
+    let mut entries: Vec<(&str, String, &str)> = vec![
+        (
+            source_label,
+            real_start_time.format("%H:%M:%S").to_string(),
+            "blue",
+        ),
+        (
+            "Rounded Start",
+            rounded_start_time.format("%H:%M").to_string(),
+            "cyan",
+        ),
+        (
+            "---",
+            "-----------------------------------".to_string(),
+            "dimmed",
+        ),
+        (
+            "Target Work Time",
+            create_duration_string(user_cfg.work_minutes as i64),
+            "green",
+        ),
+        (
+            "Break Time",
+            create_duration_string(user_cfg.break_minutes as i64),
+            "green",
+        ),
+        (
+            "End of Day",
+            end_time.format("%H:%M").to_string(),
+            "magenta",
+        ),
+        (
+            "---",
+            "-----------------------------------".to_string(),
+            "dimmed",
+        ),
+    ];
 
     if remaining.num_seconds() > 0 {
         entries.push((
@@ -201,10 +206,10 @@ fn create_duration_string(total_minutes: i64) -> String {
 fn load_or_create_user_config() -> UserConfig {
     let path: PathBuf = get_user_config_path();
     // Try read existing
-    if let Ok(contents) = fs::read_to_string(&path) {
-        if let Ok(cfg) = toml::from_str::<UserConfig>(&contents) {
-            return cfg;
-        }
+    if let Ok(contents) = fs::read_to_string(&path)
+        && let Ok(cfg) = toml::from_str::<UserConfig>(&contents)
+    {
+        return cfg;
     }
 
     // Defaults
@@ -212,10 +217,10 @@ fn load_or_create_user_config() -> UserConfig {
         work_minutes: 480, // 8 hours
         break_minutes: 45, // 45 minutes
     };
-    if let Ok(serialized) = toml::to_string(&default_cfg) {
-        if let Err(e) = fs::write(&path, serialized) {
-            eprintln!("workfetch: warning: could not save config: {e}");
-        }
+    if let Ok(serialized) = toml::to_string(&default_cfg)
+        && let Err(e) = fs::write(&path, serialized)
+    {
+        eprintln!("workfetch: warning: could not save config: {e}");
     }
     default_cfg
 }
@@ -266,10 +271,10 @@ fn get_config_path() -> PathBuf {
     if let Some(proj_dirs) = ProjectDirs::from("com", "internal", "workfetch") {
         let config_dir = proj_dirs.config_dir();
         // Ensure directory exists
-        if !config_dir.exists() {
-            if let Err(e) = fs::create_dir_all(config_dir) {
-                eprintln!("workfetch: warning: could not create config dir: {e}");
-            }
+        if !config_dir.exists()
+            && let Err(e) = fs::create_dir_all(config_dir)
+        {
+            eprintln!("workfetch: warning: could not create config dir: {e}");
         }
         return config_dir.join("last_session.json");
     }
@@ -285,10 +290,10 @@ fn get_config_path() -> PathBuf {
 fn get_user_config_path() -> PathBuf {
     if let Some(proj_dirs) = ProjectDirs::from("com", "internal", "workfetch") {
         let config_dir = proj_dirs.config_dir();
-        if !config_dir.exists() {
-            if let Err(e) = fs::create_dir_all(config_dir) {
-                eprintln!("workfetch: warning: could not create config dir: {e}");
-            }
+        if !config_dir.exists()
+            && let Err(e) = fs::create_dir_all(config_dir)
+        {
+            eprintln!("workfetch: warning: could not create config dir: {e}");
         }
         return config_dir.join("config.toml");
     }
