@@ -16,7 +16,7 @@ A small terminal application for visualizing your working day: start time (persi
 - Override today's start time manually with `--override-start`.
 - Colorized, aligned output for a quick terminal glance.
 - Survives system reboot: restores the previous start time if still the same day.
-- Cross-platform config paths (Linux, macOS, Windows) via `directories`.
+- Cross-platform config paths (Linux, Windows) via `directories`.
 
 ## Install
 
@@ -26,7 +26,7 @@ A small terminal application for visualizing your working day: start time (persi
 irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1 | iex
 ```
 
-**Linux / macOS**:
+**Linux**:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.sh | sh
@@ -43,7 +43,7 @@ the persistence model, and uninstall instructions, see the
 - Validation & friendly warnings for extreme config values.
 - Optional lunch break logic / multi-break schedule.
 - Export daily summary (CSV / JSON).
-- Scoop / winget / Homebrew package manager support.
+- Scoop / winget package manager support.
 
 ## Contributing
 

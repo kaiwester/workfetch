@@ -1,5 +1,5 @@
 #!/bin/sh
-# Install or uninstall workfetch on Linux / macOS.
+# Install or uninstall workfetch on Linux.
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.sh | sh
@@ -43,7 +43,6 @@ detect_target() {
 
     case "$os" in
         Linux*)  os_part="unknown-linux-gnu" ;;
-        Darwin*) os_part="apple-darwin" ;;
         *)       err "Unsupported OS: $os"; exit 1 ;;
     esac
 

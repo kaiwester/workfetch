@@ -40,7 +40,7 @@ remaining time. Includes a simple ASCII logo for a compact dashboard feel.
 irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1 | iex
 ```
 
-**Linux / macOS**:
+**Linux**:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.sh | sh
@@ -73,7 +73,7 @@ cd workfetch
 cargo build --release
 
 # Binary is at:
-./target/release/workfetch          # Linux / macOS
+./target/release/workfetch          # Linux
 .\target\release\workfetch.exe      # Windows
 ```
 
@@ -116,7 +116,6 @@ A TOML file is created on first run at the platform config directory:
 | Platform | Path |
 |----------|------|
 | Linux    | `~/.config/workfetch/config.toml` |
-| macOS    | `~/Library/Application Support/workfetch/config.toml` |
 | Windows  | `%APPDATA%\workfetch\config.toml` |
 
 Fallback (if directory resolution fails): `./config.toml` in the working directory.
@@ -149,7 +148,7 @@ Change values and re-run — no rebuild required.
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.ps1))) -Uninstall
 ```
 
-**Linux / macOS**:
+**Linux**:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/KaiWesterschwiensterdt/workfetch/main/install.sh | sh -s -- --uninstall
